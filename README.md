@@ -1,27 +1,23 @@
-# IVA Vision
+# IVA Vision — собственная OCR нейросеть
 
-A lightweight browser OCR app for Russian, English and digits.
+Веб-интерфейс + свой backend с обучаемой архитектурой CRNN (CNN + BiLSTM + CTC). **Без Tesseract, EasyOCR, PaddleOCR, сторонних OCR API и pretrained OCR-моделей.**
 
-## Live app
-After enabling GitHub Pages, it will be available at:
+## Возможности интерфейса
+- Загрузка изображений, drag & drop, вставка из буфера
+- Русский и английский, цифры и базовая пунктуация
+- Редактирование распознанного текста, копирование и TXT
+- Настройка адреса собственного API прямо в интерфейсе
+
+## Статус честно
+Сейчас добавлен каркас собственной модели и код обучения. **Веса ещё не обучены**, поэтому OCR не станет качественным, пока не подготовить датасет и провести обучение. Модель на первом этапе рассчитана на распознавание одной строки текста; обнаружение текста на целой странице — следующий этап.
+
+## Backend
+Инструкции: [backend/README.md](backend/README.md)
+
+Запусти backend и обучи веса. API по умолчанию: `http://localhost:8000`. На другом устройстве укажи IP компьютера в одной Wi-Fi сети, например `http://192.168.1.5:8000` (backend должен слушать `0.0.0.0`, а доступ ограничивай своей сетью).
+
+## GitHub Pages
+Settings → Pages → Build and deployment → Source: GitHub Actions. Сайт:
 https://olgakolina71-pixel.github.io/Iva-vision/
 
-## Features
-- Image upload, drag & drop, and clipboard paste
-- Russian + English OCR, with language toggles
-- Numbers and punctuation included
-- Editable results, copy and TXT download
-- Responsive mobile-first UI
-- Processing runs in browser; image isn't uploaded to an app backend
-
-## Run
-Open `index.html` via any static web server or host on GitHub Pages. OCR library and language files are downloaded from CDN on first use, so internet is needed initially.
-
-## Engine
-Prototype uses [Tesseract.js](https://github.com/naptha/tesseract.js) as an OCR engine. IVA's own trainable recognition model is planned for later iterations.
-
-## Deploy
-Repository Settings → Pages → Build and deployment → Source: GitHub Actions.
-The included workflow deploys the static site when changes are pushed to `main`.
-
-License: Apache-2.0 (project code). Tesseract.js and language model licenses apply separately.
+Pages хостит только frontend; Python-модель должна работать отдельно на компьютере/сервере.
