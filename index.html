@@ -44,7 +44,7 @@ footer{max-width:1120px;margin:auto;padding:14px 22px 32px;color:#71809c;font-si
 <div class="toast" id="toast"></div>
 <script>
 const fileInput=document.getElementById('file'),drop=document.getElementById('drop'),preview=document.getElementById('preview'),placeholder=document.getElementById('placeholder'),run=document.getElementById('run'),out=document.getElementById('output'),status=document.getElementById('status'),fill=document.getElementById('fill'),statusText=document.getElementById('statusText'),percent=document.getElementById('percent'),badge=document.getElementById('resultBadge'),count=document.getElementById('count'),toast=document.getElementById('toast');
-let currentFile=null,langs=new Set(['rus','eng');
+let currentFile=null,langs=new Set(['rus','eng']);
 function notify(s){toast.textContent=s;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200)}
 function setFile(f){if(!f||!f.type.startsWith('image/')){notify('Выбери файл изображения');return}currentFile=f;preview.src=URL.createObjectURL(f);preview.hidden=false;placeholder.hidden=true;drop.classList.add('hasimg');run.disabled=false;badge.textContent='Изображение загружено';out.value='';count.textContent='0 символов'}
 fileInput.addEventListener('change',e=>setFile(e.target.files[0]));
