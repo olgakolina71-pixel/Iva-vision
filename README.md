@@ -1,23 +1,14 @@
-# IVA Vision — собственная OCR нейросеть
+# IVA Vision
+**Offline browser prototype with an experimental custom neural character classifier.** No Tesseract, EasyOCR, PaddleOCR, OCR APIs, or third-party OCR engines.
 
-Веб-интерфейс + свой backend с обучаемой архитектурой CRNN (CNN + BiLSTM + CTC). **Без Tesseract, EasyOCR, PaddleOCR, сторонних OCR API и pretrained OCR-моделей.**
+## Current browser demo
+Open the GitHub Pages site, press **Train model in browser**, wait for synthetic character training, then upload a simple printed-text image and press Recognize. The model is created and trained at runtime using a small MLP on synthetic glyphs drawn with browser canvas. No API/backend is required.
 
-## Возможности интерфейса
-- Загрузка изображений, drag & drop, вставка из буфера
-- Русский и английский, цифры и базовая пунктуация
-- Редактирование распознанного текста, копирование и TXT
-- Настройка адреса собственного API прямо в интерфейсе
+## Limitations
+This is an educational proof-of-concept, not accurate OCR yet. It segments characters by dark pixel columns and recognizes individual glyphs. It may misread characters, spacing, fonts, and complex layouts. It is not trained on real scanned/photo data and does not detect text regions robustly. Training is temporary (restarts if page reloads). For real accuracy, we need to collect/create a dataset, train a stronger model, and evaluate it.
 
-## Статус честно
-Сейчас добавлен каркас собственной модели и код обучения. **Веса ещё не обучены**, поэтому OCR не станет качественным, пока не подготовить датасет и провести обучение. Модель на первом этапе рассчитана на распознавание одной строки текста; обнаружение текста на целой странице — следующий этап.
-
-## Backend
-Инструкции: [backend/README.md](backend/README.md)
-
-Запусти backend и обучи веса. API по умолчанию: `http://localhost:8000`. На другом устройстве укажи IP компьютера в одной Wi-Fi сети, например `http://192.168.1.5:8000` (backend должен слушать `0.0.0.0`, а доступ ограничивай своей сетью).
+## Optional Python research backend
+The `backend/` folder contains a separate CRNN training/API scaffold. It also requires training data and weights; it is not needed by the browser demo.
 
 ## GitHub Pages
-Settings → Pages → Build and deployment → Source: GitHub Actions. Сайт:
-https://olgakolina71-pixel.github.io/Iva-vision/
-
-Pages хостит только frontend; Python-модель должна работать отдельно на компьютере/сервере.
+Settings → Pages → Build and deployment → Source: GitHub Actions.
