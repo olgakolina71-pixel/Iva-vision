@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0c1020">
+<title>IVA Vision — распознавание текста</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#090d18;--panel:#11182a;--panel2:#151f35;--line:#263451;--text:#eef3ff;--muted:#96a5c2;--accent:#8b7cff;--cyan:#56d8ef;--good:#67e0ad}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 0%,#182449 0,transparent 44%),radial-gradient(ellipse at 88% 12%,#17394a 0,transparent 38%),var(--bg);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);min-height:100vh}
+header{max-width:1120px;margin:auto;padding:26px 22px 12px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--cyan));display:grid;place-items:center;font-weight:900;font-size:18px;color:#09101e;box-shadow:0 0 30px #8b7cff35}.brand h1{font-size:20px;margin:0;letter-spacing:-.5px}.brand small{color:var(--muted)}
+.pill{border:1px solid #30405d;background:#111a2d;color:#b8c8e7;border-radius:999px;padding:7px 11px;font-size:12px}
+main{max-width:1120px;margin:0 auto;padding:22px}
+.hero{margin:14px 0 28px}.hero h2{font-size:clamp(30px,5vw,48px);letter-spacing:-1.7px;line-height:1.08;margin:0 0 12px}.hero h2 span{background:linear-gradient(100deg,#a99cff,#67d9ed);background-clip:text;color:transparent}.hero p{color:var(--muted);max-width:650px;margin:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:linear-gradient(180deg,#131c30ee,#0f1728ee);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 18px 50px #0002}.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.card-head h3{font-size:15px;margin:0}.step{font-size:11px;color:#a8b5d2;background:#1b2740;border-radius:8px;padding:5px 8px}
+.drop{border:1.5px dashed #435477;border-radius:17px;min-height:275px;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;transition:.2s;background:#0c1424;position:relative;overflow:hidden}.drop.drag{border-color:var(--cyan);background:#122439}.drop.hasimg{padding:10px;min-height:230px}.drop img{max-width:100%;max-height:340px;object-fit:contain;border-radius:10px}.upload-icon{font-size:42px;margin-bottom:10px}.drop strong{display:block;font-size:16px;margin-bottom:5px}.drop p{margin:0;color:var(--muted);font-size:13px}.choose{display:inline-flex;margin-top:15px;background:#786bff;color:white;border:0;border-radius:11px;padding:10px 15px;font-weight:700;cursor:pointer}.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.langs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.lang{border:1px solid #334360;background:#121c30;color:#b9c6df;padding:8px 12px;border-radius:11px;cursor:pointer}.lang.active{border-color:#8275ff;background:#28244d;color:#e8e4ff;box-shadow:inset 0 0 0 1px #8275ff44}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid #354563;background:#172238;color:#e4ebff;border-radius:12px;padding:10px 14px;font-weight:650;cursor:pointer;transition:.16s}.btn:hover{transform:translateY(-1px);filter:brightness(1.12)}.btn.primary{border:0;background:linear-gradient(110deg,#8274ff,#54cde8);color:#071120}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.status{margin-top:14px;display:none}.status.show{display:block}.statusline{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:7px}.bar{height:7px;background:#202c43;border-radius:20px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width .25s;border-radius:20px}
+textarea{width:100%;min-height:275px;resize:vertical;background:#0a1120;border:1px solid #2a3954;border-radius:15px;color:#edf3ff;padding:14px;font:14px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;outline:none}textarea:focus{border-color:#7d73ff;box-shadow:0 0 0 3px #7d73ff20}.output-empty{color:#6e7f9f}
+.output-tools{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:10px;flex-wrap:wrap}.hint{font-size:12px;color:var(--muted)}
+footer{max-width:1120px;margin:auto;padding:14px 22px 32px;color:#71809c;font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);background:#18243a;border:1px solid #354767;padding:11px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:10}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:760px){header{padding:18px 16px}main{padding:16px}.grid{grid-template-columns:1fr}.hero{margin:10px 0 22px}.card{padding:14px}.drop{min-height:220px}textarea{min-height:230px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">IV</div><div><h1>IVA Vision</h1><small>Image → Text</small></div></div><span class="pill">OCR · RU + EN · 0–9</span></header>
+<main>
+<section class="hero"><h2>Текст с картинки.<br><span>За пару секунд.</span></h2><p>Загрузи фото, скриншот или документ. IVA Vision распознает русский, английский и цифры прямо в браузере.</p></section>
+<div class="grid">
+<section class="card"><div class="card-head"><h3>01 · Изображение</h3><span class="step">PNG · JPG · WEBP</span></div>
+<div class="drop" id="drop"><div id="placeholder"><div class="upload-icon">▧</div><strong>Перетащи изображение сюда</strong><p>или выбери файл на устройстве</p><button class="choose" type="button">Выбрать изображение</button></div><img id="preview" alt="Предпросмотр" hidden><input id="file" type="file" accept="image/*"></div>
+<div class="langs"><button class="lang active" data-lang="rus">🇷🇺 Русский</button><button class="lang active" data-lang="eng">🇬🇧 English</button></div>
+<div class="actions"><button class="btn primary" id="run" disabled>✦ Распознать текст</button><button class="btn" id="clear">Очистить</button></div>
+<div class="status" id="status"><div class="statusline"><span id="statusText">Подготовка…</span><span id="percent">0%</span></div><div class="bar"><div class="fill" id="fill"></div></div></div></section>
+<section class="card"><div class="card-head"><h3>02 · Результат</h3><span class="step" id="resultBadge">Готов к работе</span></div>
+<textarea id="output" placeholder="Распознанный текст появится здесь…"></textarea>
+<div class="output-tools"><span class="hint" id="count">0 символов</span><div class="actions"><button class="btn" id="copy">Копировать</button><button class="btn" id="download">Скачать TXT</button></div></div></section>
+</div>
+</main>
+<footer><span>IVA Vision · Prototype 0.1</span><span>Изображение обрабатывается на устройстве. Не отправляется на сервер приложения.</span></footer>
+<div class="toast" id="toast"></div>
+<script>
+const fileInput=document.getElementById('file'),drop=document.getElementById('drop'),preview=document.getElementById('preview'),placeholder=document.getElementById('placeholder'),run=document.getElementById('run'),out=document.getElementById('output'),status=document.getElementById('status'),fill=document.getElementById('fill'),statusText=document.getElementById('statusText'),percent=document.getElementById('percent'),badge=document.getElementById('resultBadge'),count=document.getElementById('count'),toast=document.getElementById('toast');
+let currentFile=null,langs=new Set(['rus','eng']),worker=null;
+function notify(s){toast.textContent=s;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200)}
+function setFile(f){if(!f||!f.type.startsWith('image/')){notify('Выбери файл изображения');return}currentFile=f;preview.src=URL.createObjectURL(f);preview.hidden=false;placeholder.hidden=true;drop.classList.add('hasimg');run.disabled=false;badge.textContent='Изображение загружено';out.value='';count.textContent='0 символов'}
+fileInput.addEventListener('change',e=>setFile(e.target.files[0]));
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
+drop.addEventListener('drop',e=>setFile(e.dataTransfer.files[0]));
+document.querySelectorAll('.lang').forEach(b=>b.addEventListener('click',()=>{const l=b.dataset.lang;if(langs.has(l)){if(langs.size===1){notify('Оставь выбран хотя бы один язык');return}langs.delete(l);b.classList.remove('active')}else{langs.add(l);b.classList.add('active')}}));
+function progress(m){if(m.status){statusText.textContent=m.status==='recognizing text'?'Распознаём текст…':m.status==='loading language traineddata'?'Загружаем языковые данные…':m.status==='loading tesseract core'?'Загружаем OCR-движок…':m.status==='initializing tesseract'?'Запускаем движок…':m.status}if(typeof m.progress==='number'){const p=Math.round(m.progress*100);fill.style.width=p+'%';percent.textContent=p+'%'}}
+run.addEventListener('click',async()=>{if(!currentFile)return;run.disabled=true;status.classList.add('show');fill.style.width='0%';percent.textContent='0%';statusText.textContent='Подготовка OCR…';badge.textContent='Выполняется';try{if(!worker){worker=await Tesseract.createWorker([...langs].join('+'),1,{logger:progress});}else{await worker.reinitialize([...langs].join('+'));}const result=await worker.recognize(currentFile);out.value=(result.data.text||'').trim();count.textContent=out.value.length+' символов';badge.textContent='Готово';statusText.textContent='Распознавание завершено';fill.style.width='100%';percent.textContent='100%';if(!out.value)notify('Текст не найден — попробуй более чёткое изображение')}catch(err){console.error(err);badge.textContent='Ошибка';statusText.textContent='Не удалось распознать';notify('Ошибка OCR. Проверь интернет и попробуй ещё раз.')}finally{run.disabled=false}});
+out.addEventListener('input',()=>count.textContent=out.value.length+' символов');
+document.getElementById('copy').addEventListener('click',async()=>{if(!out.value){notify('Пока нечего копировать');return}try{await navigator.clipboard.writeText(out.value);notify('Текст скопирован')}catch{out.select();document.execCommand('copy');notify('Скопировано')}});
+document.getElementById('download').addEventListener('click',()=>{if(!out.value){notify('Нет текста для скачивания');return}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out.value],{type:'text/plain;charset=utf-8'}));a.download='iva-vision-text.txt';a.click();URL.revokeObjectURL(a.href)});
+document.getElementById('clear').addEventListener('click',()=>{currentFile=null;fileInput.value='';preview.hidden=true;preview.src='';placeholder.hidden=false;drop.classList.remove('hasimg');run.disabled=true;out.value='';status.classList.remove('show');fill.style.width='0%';badge.textContent='Готов к работе';count.textContent='0 символов'});
+window.addEventListener('paste',e=>{const item=[...(e.clipboardData?.items||[])].find(x=>x.type.startsWith('image/'));if(item)setFile(item.getAsFile())});
+</script>
+</body></html>
