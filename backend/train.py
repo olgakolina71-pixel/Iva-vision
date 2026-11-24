@@ -45,7 +45,7 @@ class HfLines(IterableDataset):
     def __iter__(self):
         count=0
         for row in self.ds:
-            text=str(row.get("text","")).strip()
+            text=str(row.get("text","")).strip().lower()
             image=row.get("image")
             if not text or image is None or len(text)>250 or not all(c in CHAR_TO_ID for c in text):
                 continue
