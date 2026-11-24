@@ -29,11 +29,13 @@ async def predict(image:UploadFile=File(...),languages:str=Form("rus,eng")):
         model=IVA_CRNN().to(device);model.load_state_dict(ckpt["state_dict"]);model.eval()
     try:
         img=Image.open(BytesIO(await image.read())).convert("L")
-        # Prototype assumes one line of text; line detection/cropping is a later stage.
-        img=ImageOps.invert(img)
+        # Prototype expects one cropped line. Match training preprocessing: white background,
+        # black glyphs become high values after inversion, with a one-pixel white border.
         h=32;w=max(8,int(img.width*h/img.height));img=img.resize((w,h))
+        img=ImageOps.expand(img,border=1,fill=255)
         import numpy as np
-        x=torch.from_numpy(np.asarray(img,dtype=np.float32)/255).unsqueeze(0).unsqueeze(0).to(device)
+        arr=np.asarray(img,dtype=np.float32)/255.0
+        x=torch.from_numpy(1.0-arr).unsqueeze(0).unsqueeze(0).to(device)
         with torch.no_grad(): pred=model(x)[0]
         return {"text":decode(pred),"model":"IVA-CRNN (custom)","note":"Prototype: single-line recognition"}
     except Exception as e: raise HTTPException(400,f"Image processing failed: {e}")
